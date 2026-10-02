@@ -16,7 +16,7 @@ bcchook["events"].open_perf_buffer(print_event)
 def main():
     while True:
         try:
-            bcchook.perf_buffer_poll(print_event)
+            bcchook.perf_buffer_poll()
         except KeyboardInterrupt:
             exit()
 
