@@ -1,0 +1,16 @@
+[Unit]
+Description=EasyEDR - mini EDR eBPF
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/easyedr/main.py
+WorkingDirectory=/opt/easyedr
+Restart=on-failure
+RestartSec=5
+User=root
+StandardOutput=append:/var/log/easyedr/service.log
+StandardError=append:/var/log/easyedr/service_error.log
+
+[Install]
+WantedBy=multi-user.target

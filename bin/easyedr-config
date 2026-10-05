@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+CONFIG_FILE="/opt/easyedr/config.yaml"
+SERVICE_NAME="easyedr"
+
+usage() {
+    echo "Usage: easyedr config [options]"
+    echo "  --threshold N        execve threshold for fork bomb detection"
+    echo "  --window N           detection window in seconds for fork bombs"
+    echo "  --show               show the current configuration"
+    echo "  --edit               open config.yaml in \$EDITOR"
+    echo "  -h, --help           show this help"
+    exit 0
+}
+
+if [[ $# -eq 0 ]]; then
+    usage
+fi
+
+RESTART=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --threshold)
+            [[ $EUID -ne 0 ]] && { echo "Root privileges required"; exit 1; }
+            sed -i "s/threshold:.*/threshold: $2/" "$CONFIG_FILE"
+            echo "threshold updated: $2"
+            RESTART=true
+            shift 2 ;;
+        --window)
+            [[ $EUID -ne 0 ]] && { echo "Root privileges required"; exit 1; }
+            sed -i "s/window_seconds:.*/window_seconds: $2/" "$CONFIG_FILE"
+            echo "window_seconds updated: $2"
+            RESTART=true
+            shift 2 ;;
+        --show)
+            cat "$CONFIG_FILE"
+            exit 0 ;;
+        --edit)
+            [[ $EUID -ne 0 ]] && { echo "Root privileges required"; exit 1; }
+            "${EDITOR:-nano}" "$CONFIG_FILE"
+            RESTART=true
+            shift ;;
+        -h|--help) usage ;;
+        *) echo "Unknown option: $1"; usage ;;
+    esac
+done
+
+if $RESTART; then
+    systemctl restart "$SERVICE_NAME"
+    echo "Service redémarré pour appliquer les changements."
+fi
