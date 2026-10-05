@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+    cat <<EOF
+easyedr - mini EDR eBPF pour Debian
+
+Usage: easyedr <commande> [options]
+
+Commandes:
+  logs [options]       shows service logs, see below for options
+  clear                empties the log file
+  config [options]     shows or modifies the configuration, see below for options
+  status               shows the service status
+  start                starts the service
+  stop                 stops the service
+  restart              restarts the service
+  -h, --help           shows this
+
+Exemples:
+  easyedr logs -f               prints logs in real-time
+  easyedr logs -w               shows only warnings
+  easyedr logs -a               shows only alerts
+  easyedr config --show         shows the current configuration
+  easyedr config --threshold 20
+
+Credits:
+    easyedr est un projet open-source développé par Rikuhhh
+    c'est un projet pour apprendre et expérimenter, il n'est pas destiné à être utilisé en production
+    libre à vous de le modifier et le redistribuer en me créditant
+    NE PAS REVENDRE SANS AUTORISATION
+
+    easyedr is an open-source project developed by Rikuhhh
+    it's a project to learn and experiment, it's not intended to be used in production
+    feel free to modify and redistribute it while giving me credit
+    DO NOT SELL WITHOUT PERMISSION
+
+    links :
+    https://github.com/Rikuhhh/easyedr
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+    usage
+    exit 0
+fi
+
+CMD="$1"
+shift
+
+case "$CMD" in
+    logs)
+        exec "$SCRIPT_DIR/easyedr-logs" "$@" ;;
+    clear)
+        exec "$SCRIPT_DIR/easyedr-clear" "$@" ;;
+    config)
+        exec "$SCRIPT_DIR/easyedr-config" "$@" ;;
+    status)
+        systemctl status easyedr --no-pager ;;
+    start)
+        sudo systemctl start easyedr && echo "Service started." ;;
+    stop)
+        sudo systemctl stop easyedr && echo "Service stopped." ;;
+    restart)
+        sudo systemctl restart easyedr && echo "Service restarted." ;;
+    -h|--help)
+        usage ;;
+    *)
+        echo "Commande inconnue: $CMD"
+        usage
+        exit 1 ;;
+esac

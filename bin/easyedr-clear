@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+LOG_FILE="/var/log/easyedr/execve_log.json"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "This command requires root privileges (sudo easyedr clear)"
+    exit 1
+fi
+
+read -rp "Clear $LOG_FILE ? [y/N] " confirm
+if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+    : > "$LOG_FILE"
+    echo "Logs cleared."
+else
+    echo "Cancelled."
+fi
