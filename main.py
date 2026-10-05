@@ -35,7 +35,7 @@ def print_event(cpu, data, size):
         return
     if config.get("logging", "console", default=True):
         print(log_entry)
-    log_file_path = config.get("logging", "output_file", default="execve_log.json")
+    log_file_path = config.get("logging", "output_file", default="edr_events.jsonl")
     with open(log_file_path, "a") as log_file:
         log_file.write(json.dumps(log_entry) + "\n")
     for alert in run_all_rules(log_entry):

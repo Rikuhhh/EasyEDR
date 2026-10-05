@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-LOG_FILE="/var/log/easyedr/execve_log.json"
+LOG_FILE="/var/log/easyedr/edr_events.jsonl"
 
 if [[ $EUID -ne 0 ]]; then
     echo "This command requires root privileges (sudo easyedr clear)"
