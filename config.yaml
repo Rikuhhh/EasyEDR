@@ -1,5 +1,5 @@
 logging:
-  output_file: "edr_events.jsonl"
+  output_file: "/var/log/easyedr/edr_events.jsonl"
   console: true
   level: "info" # niveaux : info, warning, critical
 
