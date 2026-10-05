@@ -29,6 +29,14 @@ rules:
     threshold: 15
     window_seconds: 2
     group_by: "ppid"
+    whitelist_commands:
+      - "code"
+      - "cpuUsage.sh"
+      - "Xorg"
+      - "firefox"
+      - "chrome"
+      - "chromium"
+      - "code-oss"
 
   exec_from_tmp:
     enabled: true
