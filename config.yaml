@@ -1,0 +1,47 @@
+logging:
+  output_file: "edr_events.jsonl"
+  console: true
+  level: "info" # niveaux : info, warning, critical
+
+filters:
+  # ignore self
+  ignore_own_pid: true
+  ignore_paths:
+    - "/proc"
+    - "/sys"
+  ignore_commands:
+    - "easyedr"
+    - "rsyslogd"
+    - "systemd-journald"
+
+hooks:
+  execve:
+    enabled: true
+  connect:
+    enabled: true
+  write:
+    enabled: false
+
+rules:
+  #fork bomb detect
+  fork_bomb:
+    enabled: true
+    threshold: 15
+    window_seconds: 2
+    group_by: "ppid"
+
+  exec_from_tmp:
+    enabled: true
+    paths:
+      - "/tmp"
+      - "/dev/shm"
+      - "/var/tmp"
+
+  shell_after_exec:
+    enabled: true
+    shells:
+      - "bash"
+      - "sh"
+      - "zsh"
+      - "python3"
+    delay_seconds: 2 # mercy delay
