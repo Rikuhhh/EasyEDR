@@ -39,7 +39,7 @@ if $FOLLOW; then
     fi
 else
     if [[ -n "$FILTER" ]]; then
-        tail -n "$LINES" "$LOG_FILE" | grep "$FILTER"
+        grep "$FILTER" "$LOG_FILE" | tail -n "$LINES"
     else
         tail -n "$LINES" "$LOG_FILE"
     fi
