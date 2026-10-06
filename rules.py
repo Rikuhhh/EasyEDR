@@ -47,7 +47,8 @@ def check_exec_from_tmp(execve_event):
     paths = cfg.get("paths", [])
     filename = execve_event.get("filename", "")
     if any(filename.startswith(p) for p in paths):
-        return f"Warning: Suspect execution pattern: {filename} (pid={execve_event.get('pid')})"
+        pid = execve_event.get("pid")
+        return f"Warning: Suspect execution pattern: {filename} (pid={pid})"
     return None
 
 
@@ -63,6 +64,30 @@ def run_execve_rules(event):
 def run_fork_rules(event):
     alerts = []
     for check in [check_fork_bomb]:
+        result = check(event)
+        if result:
+            alerts.append(result)
+    return alerts
+
+
+def check_shell_connect(connect_event):
+    cfg = config.get("rules", "connect", default={})
+    if not cfg.get("enabled", True):
+        return None
+
+    shells = cfg.get("shells", ["bash", "sh", "zsh", "python3"])
+    command = connect_event.get("command", "")
+    if command in shells:
+        destination = connect_event.get("destination")
+        port = connect_event.get("port")
+        pid = connect_event.get("pid")
+        return f"Warning: Possible reverse shell: {command} connected to {destination}:{port} (pid={pid})"
+    return None
+
+
+def run_connect_rules(event):
+    alerts = []
+    for check in [check_shell_connect]:
         result = check(event)
         if result:
             alerts.append(result)

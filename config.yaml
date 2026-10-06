@@ -46,11 +46,10 @@ rules:
       - "/dev/shm"
       - "/var/tmp"
 
-  shell_after_exec:
+  connect:
     enabled: true
     shells:
       - "bash"
       - "sh"
       - "zsh"
       - "python3"
-    delay_seconds: 2 # mercy delay

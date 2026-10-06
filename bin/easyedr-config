@@ -4,7 +4,8 @@ SERVICE_NAME="easyedr"
 
 usage() {
     echo "Usage: easyedr config [options]"
-    echo "  --threshold N        execve threshold for fork bomb detection"
+    echo "  --threshold N        per-parent threshold for fork bomb detection"
+    echo "  --global-threshold N system-wide threshold for fork bomb detection"
     echo "  --window N           detection window in seconds for fork bombs"
     echo "  --show               show the current configuration"
     echo "  --edit               open config.yaml in \$EDITOR"
@@ -22,13 +23,19 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --threshold)
             [[ $EUID -ne 0 ]] && { echo "Root privileges required"; exit 1; }
-            sed -i "s/threshold:.*/threshold: $2/" "$CONFIG_FILE"
+            sed -i "s/^    threshold:.*/    threshold: $2/" "$CONFIG_FILE"
             echo "threshold updated: $2"
+            RESTART=true
+            shift 2 ;;
+        --global-threshold)
+            [[ $EUID -ne 0 ]] && { echo "Root privileges required"; exit 1; }
+            sed -i "s/^    global_threshold:.*/    global_threshold: $2/" "$CONFIG_FILE"
+            echo "global_threshold updated: $2"
             RESTART=true
             shift 2 ;;
         --window)
             [[ $EUID -ne 0 ]] && { echo "Root privileges required"; exit 1; }
-            sed -i "s/window_seconds:.*/window_seconds: $2/" "$CONFIG_FILE"
+            sed -i "s/^    window_seconds:.*/    window_seconds: $2/" "$CONFIG_FILE"
             echo "window_seconds updated: $2"
             RESTART=true
             shift 2 ;;
