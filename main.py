@@ -10,7 +10,6 @@ OWN_PID = os.getpid()
 Chook = open("hook.c", "r").read()
 
 bcchook = BPF(text=Chook)
-bcchook.attach_kprobe(event=bcchook.get_syscall_fnname("execve"), fn_name="hook_execve")
 
 def should_ignore(log_entry):
     if config.get("filters", "ignore_own_pid", default=True):

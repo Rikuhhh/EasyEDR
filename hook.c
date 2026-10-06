@@ -11,9 +11,8 @@ struct data_t {
 
 BPF_PERF_OUTPUT(events);
 
-int hook_execve(struct pt_regs *ctx) {
+TRACEPOINT_PROBE(syscalls, sys_enter_execve) {
     struct data_t data = {};
-    const char __user *filename = (const char __user *)PT_REGS_PARM1(ctx);
 
     u64 pid_tgid = bpf_get_current_pid_tgid();
     data.pid = pid_tgid >> 32;
@@ -26,9 +25,9 @@ int hook_execve(struct pt_regs *ctx) {
     data.ppid = task->real_parent->tgid;
 
     bpf_get_current_comm(&data.cmd, sizeof(data.cmd));
-    bpf_probe_read_user_str(&data.filename, sizeof(data.filename), filename);
+    bpf_probe_read_user_str(&data.filename, sizeof(data.filename), args->filename);
 
-    events.perf_submit(ctx, &data, sizeof(data));
+    events.perf_submit(args, &data, sizeof(data));
     return 0;
 }
 
