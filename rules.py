@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 from config_loader import config
 
 _fork_history = defaultdict(deque)
+_global_fork_history = deque()
 _execve_history = defaultdict(deque)
 _pid_to_cmd = {}
 
@@ -17,18 +18,24 @@ def check_fork_bomb(fork_event):
         return None
 
     threshold = cfg.get("threshold", 15)
+    global_threshold = cfg.get("global_threshold", 50)
     window = cfg.get("window_seconds", 2)
     group_key = fork_event.get("parent_pid")
 
     now = time.time()
     history = _fork_history[group_key]
     history.append(now)
+    _global_fork_history.append(now)
 
     while history and now - history[0] > window:
         history.popleft()
+    while _global_fork_history and now - _global_fork_history[0] > window:
+        _global_fork_history.popleft()
 
     if len(history) >= threshold:
-        return f"Warning: FORK BOMB: parent_pid={group_key} ({parent_comm}) created {len(history)} processus in {window}s"
+        return f"Warning: FORK BOMB: parent_pid={group_key} ({parent_comm}) created {len(history)} processes in {window}s"
+    if len(_global_fork_history) >= global_threshold:
+        return f"Warning: FORK BOMB: system created {len(_global_fork_history)} processes in {window}s"
     return None
 
 
