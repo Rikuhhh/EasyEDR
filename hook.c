@@ -11,8 +11,9 @@ struct data_t {
 
 BPF_PERF_OUTPUT(events);
 
-int hook_execve(struct pt_regs *ctx, const char __user *filename) {
+int hook_execve(struct pt_regs *ctx) {
     struct data_t data = {};
+    const char __user *filename = (const char __user *)PT_REGS_PARM1(ctx);
 
     u64 pid_tgid = bpf_get_current_pid_tgid();
     data.pid = pid_tgid >> 32;
