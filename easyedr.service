@@ -9,7 +9,7 @@ WorkingDirectory=/opt/easyedr
 Restart=on-failure
 RestartSec=5
 User=root
-StandardOutput=append:/var/log/easyedr/service.log
+StandardOutput=append:/var/log/easyedr/edr_events.jsonl
 StandardError=append:/var/log/easyedr/service_error.log
 
 [Install]
