@@ -38,7 +38,7 @@ def print_execve_event(cpu, data, size):
         "gid": event.gid,
         "cmd": event.cmd.decode("utf-8", "replace"),
         "filename": event.filename.decode("utf-8", "replace"),
-        "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     if should_ignore(log_entry):
         return
@@ -53,7 +53,7 @@ def print_fork_event(cpu, data, size):
         "parent_pid": event.parent_pid,
         "child_pid": event.child_pid,
         "parent_comm": event.parent_comm.decode("utf-8", "replace"),
-        "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     ignore_cmds = config.get("filters", "ignore_commands", default=[])
     if log_entry["parent_comm"] in ignore_cmds:
