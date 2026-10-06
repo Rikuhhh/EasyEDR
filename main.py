@@ -31,7 +31,7 @@ def write_log(entry):
 
 def write_alerts(alerts):
     for alert in alerts:
-        write_log({"type": "warning", "message": alert})
+        write_log({"type": "alert", "message": alert})
 
 def print_execve_event(cpu, data, size):
     event = bcchook["events"].event(data)
