@@ -3,7 +3,7 @@ import datetime
 import json
 from bcc import BPF
 from config_loader import config
-from rules import run_all_rules
+from rules import run_execve_rules, run_fork_rules
 
 OWN_PID = os.getpid()
 
@@ -21,26 +21,50 @@ def should_ignore(log_entry):
         return True
     return False
 
-def print_event(cpu, data, size):
+def write_log(entry):
+    if config.get("logging", "console", default=True):
+        print(entry)
+    log_file_path = config.get("logging", "output_file", default="/var/log/easyedr/edr_events.jsonl")
+    with open(log_file_path, "a") as log_file:
+        log_file.write(json.dumps(entry) + "\n")
+
+def print_execve_event(cpu, data, size):
     event = bcchook["events"].event(data)
     log_entry = {
+        "type": "execve",
         "pid": event.pid,
         "ppid": event.ppid,
         "uid": event.uid,
         "gid": event.gid,
-        "cmd": event.cmd.decode('utf-8'),
+        "cmd": event.cmd.decode("utf-8", "replace"),
+        "filename": event.filename.decode("utf-8", "replace"),
         "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
     if should_ignore(log_entry):
         return
-    if config.get("logging", "console", default=True):
-        print(log_entry)
-    log_file_path = config.get("logging", "output_file", default="/var/log/easyedr/edr_events.jsonl")
-    with open(log_file_path, "a") as log_file:
-        log_file.write(json.dumps(log_entry) + "\n")
-    for alert in run_all_rules(log_entry):
+    write_log(log_entry)
+    for alert in run_execve_rules(log_entry):
         print(alert)
-bcchook["events"].open_perf_buffer(print_event)
+
+def print_fork_event(cpu, data, size):
+    event = bcchook["fork_events"].event(data)
+    log_entry = {
+        "type": "fork",
+        "parent_pid": event.parent_pid,
+        "child_pid": event.child_pid,
+        "parent_comm": event.parent_comm.decode("utf-8", "replace"),
+        "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    ignore_cmds = config.get("filters", "ignore_commands", default=[])
+    if log_entry["parent_comm"] in ignore_cmds:
+        return
+    write_log(log_entry)
+    for alert in run_fork_rules(log_entry):
+        print(alert)
+
+
+bcchook["events"].open_perf_buffer(print_execve_event)
+bcchook["fork_events"].open_perf_buffer(print_fork_event)
 
 def main():
     while True:
