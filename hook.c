@@ -37,7 +37,6 @@ TRACEPOINT_PROBE(syscalls, sys_enter_execve) {
 struct connect_data_t {
     u32 pid;
     u32 uid;
-    u16 family;
     u16 dport;
     u32 daddr;
     char comm[16];
@@ -55,7 +54,6 @@ TRACEPOINT_PROBE(syscalls, sys_enter_connect) {
     u64 pid_uid = bpf_get_current_pid_tgid();
     data.pid = pid_uid >> 32;
     data.uid = bpf_get_current_uid_gid() & 0xFFFFFFFF;
-    data.family = address.sin_family;
     data.dport = bpf_ntohs(address.sin_port);
     data.daddr = bpf_ntohl(address.sin_addr.s_addr);
     bpf_get_current_comm(&data.comm, sizeof(data.comm));

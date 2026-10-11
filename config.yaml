@@ -1,26 +1,18 @@
 logging:
   output_file: "/var/log/easyedr/edr_events.jsonl"
   console: false
-  level: "info" # niveaux : info, warning, critical
 
 filters:
   # ignore self
   ignore_own_pid: true
-  ignore_paths:
-    - "/proc"
-    - "/sys"
   ignore_commands:
     - "easyedr"
     - "rsyslogd"
     - "systemd-journald"
 
 hooks:
-  execve:
-    enabled: true
   connect:
     enabled: true
-  write:
-    enabled: false
 
 rules:
   #fork bomb detect
